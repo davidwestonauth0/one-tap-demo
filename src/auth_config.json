@@ -1,6 +1,6 @@
 {
-  "domain": "prod.oauthplayground.geoffit.co.uk",
-  "clientId": "dVpDyp2UYzgRRTJaLauxQMep5DpsWtOK",
-  "audience": "",
+  "domain": "auth.dwuk.westondemos.co.uk",
+  "clientId": "nxBGupF2wFXmPUBAD3eUCnnB8UtrEQJN",
+  "audience": "https://my-test",
   "googleClientId": "555103496371-o8ll2bhr95at3ui5mgo2ko298j4dum8m.apps.googleusercontent.com"
 }

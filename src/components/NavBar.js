@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { NavLink as RouterNavLink } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
@@ -26,18 +26,47 @@ const NavBar = () => {
     user,
     isAuthenticated,
     loginWithRedirect,
+    getIdTokenClaims,
     logout,
   } = useAuth0();
   const toggle = () => setIsOpen(!isOpen);
 
   const logoutWithRedirect = () =>
     logout({
-      returnTo: window.location.origin,
+        logoutParams: {
+          returnTo: window.location.origin,
+        }
     });
+
+    useEffect(()=>{
+        if (isAuthenticated) {
+        getIdTokenClaims().then(
+
+          (t) => {
+
+            // if the remember me claim is present then set a local storage flag and reload the app with the amended auth provider
+            if (t.remember_me == "true" && localStorage.remember_me!=='true' && localStorage.reload!=='true') {
+              localStorage.setItem("remember_me", "true");
+              localStorage.setItem("reload", "true");
+              loginWithRedirect({authorizationParams: {prompt: "none"}});
+            } else if (localStorage.remember_me=='true' && localStorage.reload=='true') {
+                 // reload the app now that our new auth provider settings are in place
+                 localStorage.removeItem("reload");
+                 loginWithRedirect({authorizationParams: {prompt: "none"}});
+            }
+          }
+        );
+        } else {
+            //remove the remember me flag on logout
+            if (localStorage.remember_me=='true' && localStorage.reload!=='true') {
+                localStorage.removeItem("remember_me");
+            }
+        }
+      }, []);
 
   return (
     <div className="nav-container">
-      <Navbar color="light" light expand="md">
+      <Navbar color="light" light expand="md" container={false}>
         <Container>
           <NavbarBrand className="logo" />
           <NavbarToggler onClick={toggle} />
@@ -53,6 +82,18 @@ const NavBar = () => {
                   Home
                 </NavLink>
               </NavItem>
+              {isAuthenticated && (
+                <NavItem>
+                  <NavLink
+                    tag={RouterNavLink}
+                    to="/external-api"
+                    exact
+                    activeClassName="router-link-exact-active"
+                  >
+                    External API
+                  </NavLink>
+                </NavItem>
+              )}
             </Nav>
             <Nav className="d-none d-md-block" navbar>
               {!isAuthenticated && (
